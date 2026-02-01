@@ -1,0 +1,85 @@
+<div class="next-page" id="pdf-content">
+  <div class="header-section" *ngIf="developer && project">
+    <h1>Documentation for {{ project.name }}</h1>
+    <h3>By {{ developer.name }}</h3>
+  </div>
+
+  <form [formGroup]="form" *ngIf="developer && project; else missingSelection">
+
+    <div class="section">
+      <h2>📋 Basic Information</h2>
+      <div class="form-group">
+        <label>Description:</label>
+        <textarea formControlName="description" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Purpose:</label>
+        <textarea formControlName="purpose" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Location:</label>
+        <input type="text" formControlName="location">
+      </div>
+      <div class="form-group">
+        <label>Dependencies:</label>
+        <textarea formControlName="dependencies" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>⚙️ Development Process</h2>
+      <div class="form-range">
+        <div class="form-group">
+          <label>Thoughts:</label>
+          <textarea formControlName="thoughts" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Challenges Faced:</label>
+          <textarea formControlName="challenges" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-range">
+        <div class="form-group">
+          <label>Assumptions Made:</label>
+          <textarea formControlName="assumptions" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Why This Approach:</label>
+          <textarea formControlName="approach" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Possible Alternatives:</label>
+        <textarea formControlName="alternatives" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔧 Technical Details</h2>
+      <div class="form-group">
+        <label>Solution:</label>
+        <textarea formControlName="solution" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Summary:</label>
+        <textarea formControlName="summary" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Architecture Notes:</label>
+        <textarea formControlName="architecture" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="actions-section" data-html2canvas-ignore="true">
+      <div *ngIf="saveSuccess" class="success-message">Documentation saved successfully!</div>
+      <div *ngIf="saveError" class="error-message">Failed to save documentation.</div>
+      <button type="button" class="btn-save" (click)="saveDocumentation()">Save Documentation</button>
+      <button type="button" class="btn-pdf" (click)="downloadPdf()">Print / Save as PDF</button>
+    </div>
+
+  </form>
+
+  <ng-template #missingSelection>
+    <p>No selection found. Please go back and choose a developer and project.</p>
+  </ng-template>
+</div>

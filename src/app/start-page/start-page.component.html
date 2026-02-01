@@ -1,0 +1,60 @@
+<div class="start-page">
+  <h1>Start documentation</h1>
+
+  <form [formGroup]="form" (ngSubmit)="continue()">
+    <div class="field-group">
+      <label for="developer">Developer</label>
+      <select id="developer" formControlName="developerId">
+        <option [ngValue]="null">Select a developer...</option>
+        <option *ngFor="let dev of developers" [ngValue]="dev.id">
+          {{ dev.name }}
+        </option>
+      </select>
+      <div class="error" *ngIf="form.get('developerId')?.touched && form.get('developerId')?.invalid">
+        Developer is required.
+      </div>
+
+      <div class="inline-add">
+        <input
+          type="text"
+          [(ngModel)]="newDeveloperName"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Add new developer"
+        />
+        <button type="button" (click)="addDeveloper()">Add</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="project">Project</label>
+      <select id="project" formControlName="projectId">
+        <option [ngValue]="null">Select a project...</option>
+        <option *ngFor="let proj of projects" [ngValue]="proj.id">
+          {{ proj.name }}
+        </option>
+      </select>
+      <div class="error" *ngIf="form.get('projectId')?.touched && form.get('projectId')?.invalid">
+        Project is required.
+      </div>
+
+      <div class="inline-add">
+        <input
+          type="text"
+          [(ngModel)]="newProjectName"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Add new project"
+        />
+        <button type="button" (click)="addProject()">Add</button>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="error global-error">
+      {{ errorMessage }}
+    </div>
+
+    <button type="submit" [disabled]="form.invalid">
+      Continue
+    </button>
+  </form>
+</div>
+
