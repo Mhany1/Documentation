@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { SelectionService } from '../selection.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-next-page',
@@ -68,7 +69,7 @@ export class NextPageComponent implements OnInit {
       projectId: this.project ? this.project.id : null
     };
 
-    this.http.post('http://localhost:3000/api/documentation', payload).subscribe(
+    this.http.post(`${environment.apiUrl}/documentation`, payload).subscribe(
       res => {
         this.saveSuccess = true;
         this.form.reset();
@@ -107,7 +108,7 @@ export class NextPageComponent implements OnInit {
 
     // Then download PDF from backend using HttpClient
     setTimeout(() => {
-      const url = `http://localhost:3000/api/download-pdf/${this.project.id}`;
+      const url = `${environment.apiUrl}/download-pdf/${this.project.id}`;
 
       // Use HttpClient to get the PDF as a blob
       this.http.get(url, { responseType: 'blob' }).subscribe(
