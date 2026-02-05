@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Developer, Project } from '../models';
 import { DevelopersService } from '../developers.service';
 import { ProjectsService } from '../projects.service';
 import { SelectionService } from '../selection.service';
+import { environment } from '../../environments/environment';
+
 
 @Component({
   selector: 'app-start-page',
@@ -28,6 +31,7 @@ export class StartPageComponent implements OnInit {
     private developersService: DevelopersService,
     private projectsService: ProjectsService,
     private selectionService: SelectionService,
+    private http: HttpClient,
     private router: Router
   ) {
     this.form = this.fb.group({
@@ -37,6 +41,16 @@ export class StartPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // 1. Subscribe to the shared state (will instantly receive localStorage cached data)
+    this.developersService.developers$.subscribe(devs => {
+      this.developers = devs;
+    });
+
+    this.projectsService.projects$.subscribe(projs => {
+      this.projects = projs;
+    });
+
+    // 2. Trigger background refresh from backend
     this.loadDevelopers();
     this.loadProjects();
   }
@@ -44,8 +58,8 @@ export class StartPageComponent implements OnInit {
   private loadDevelopers(): void {
     this.loadingDevelopers = true;
     this.developersService.getDevelopers().subscribe(
-      developers => {
-        this.developers = developers;
+      () => {
+        // Data is handled by the subscription in ngOnInit via BehaviorSubject
         this.loadingDevelopers = false;
       },
       () => {
@@ -58,8 +72,8 @@ export class StartPageComponent implements OnInit {
   private loadProjects(): void {
     this.loadingProjects = true;
     this.projectsService.getProjects().subscribe(
-      projects => {
-        this.projects = projects;
+      () => {
+        // Data is handled by the subscription in ngOnInit via BehaviorSubject
         this.loadingProjects = false;
       },
       () => {
@@ -77,12 +91,7 @@ export class StartPageComponent implements OnInit {
 
     this.developersService.createDeveloper(name).subscribe(
       developer => {
-        const existingIndex = this.developers.findIndex(d => d.id === developer.id);
-        if (existingIndex === -1) {
-          this.developers = [...this.developers, developer].sort((a, b) => a.name.localeCompare(b.name));
-        } else {
-          this.developers[existingIndex] = developer;
-        }
+        // Dropdown will update automatically via service subscription
         this.form.patchValue({ developerId: developer.id });
         this.newDeveloperName = '';
       },
@@ -100,17 +109,33 @@ export class StartPageComponent implements OnInit {
 
     this.projectsService.createProject(name).subscribe(
       project => {
-        const existingIndex = this.projects.findIndex(p => p.id === project.id);
-        if (existingIndex === -1) {
-          this.projects = [...this.projects, project].sort((a, b) => a.name.localeCompare(b.name));
-        } else {
-          this.projects[existingIndex] = project;
-        }
+        // Dropdown will update automatically via service subscription
         this.form.patchValue({ projectId: project.id });
         this.newProjectName = '';
       },
       () => {
         this.errorMessage = 'Failed to create project.';
+      }
+    );
+  }
+
+  downloadAllProjectsReport(): void {
+    const url = `${environment.apiUrl}/download-all-projects`;
+
+    this.http.post(url, { responseType: 'blob' }).subscribe(
+      (blob: Blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'Full_System_Documentation.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error => {
+        console.error('Global PDF Error:', error);
+        alert('Failed to generate community report.');
       }
     );
   }

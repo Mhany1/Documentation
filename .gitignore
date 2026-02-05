@@ -37,3 +37,12 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+.vercel
+
+# Angular cache (local only)
+.angular/
+.angular/cache/
+
+# Webpack / Babel cache (safety)
+babel-webpack/
+angular-webpack/

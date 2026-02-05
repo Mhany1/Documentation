@@ -15,12 +15,8 @@
       </div>
 
       <div class="inline-add">
-        <input
-          type="text"
-          [(ngModel)]="newDeveloperName"
-          [ngModelOptions]="{standalone: true}"
-          placeholder="Add new developer"
-        />
+        <input type="text" [(ngModel)]="newDeveloperName" [ngModelOptions]="{standalone: true}"
+          placeholder="Add new developer" />
         <button type="button" (click)="addDeveloper()">Add</button>
       </div>
     </div>
@@ -38,12 +34,8 @@
       </div>
 
       <div class="inline-add">
-        <input
-          type="text"
-          [(ngModel)]="newProjectName"
-          [ngModelOptions]="{standalone: true}"
-          placeholder="Add new project"
-        />
+        <input type="text" [(ngModel)]="newProjectName" [ngModelOptions]="{standalone: true}"
+          placeholder="Add new project" />
         <button type="button" (click)="addProject()">Add</button>
       </div>
     </div>
@@ -52,9 +44,10 @@
       {{ errorMessage }}
     </div>
 
-    <button type="submit" [disabled]="form.invalid">
-      Continue
-    </button>
+    <div class="actions">
+      <button type="submit" [disabled]="form.invalid">
+        Continue
+      </button>
+    </div>
   </form>
 </div>
-
