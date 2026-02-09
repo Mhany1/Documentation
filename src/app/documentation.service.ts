@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { DocumentationEntry } from './models';
 import { environment } from '../environments/environment';
 
@@ -10,39 +9,39 @@ import { environment } from '../environments/environment';
 })
 export class DocumentationService {
     private apiUrl = `${environment.apiUrl}/documentation`;
-    private cacheKey = 'docs_cache_all';
 
     constructor(private http: HttpClient) { }
 
-    getAllDocs(): DocumentationEntry[] {
-        try {
-            const cached = localStorage.getItem(this.cacheKey);
-            return cached ? JSON.parse(cached) : [];
-        } catch (e) {
-            console.error('Error parsing local cache:', e);
-            return [];
-        }
+    /**
+     * Get all documentation entries from the backend
+     * No localStorage - all data comes from Supabase
+     */
+    getAllDocs(): Observable<DocumentationEntry[]> {
+        return this.http.get<DocumentationEntry[]>(this.apiUrl);
     }
 
-    getDocsForProject(projectId: string): DocumentationEntry[] {
-        const all = this.getAllDocs();
-        return all.filter(d => d.projectId === projectId);
-    }
-
-    saveDoc(payload: any): Observable<DocumentationEntry> {
-        return this.http.post<DocumentationEntry>(this.apiUrl, payload).pipe(
-            tap(savedDoc => {
-                const all = this.getAllDocs();
-                // Use a persistent client-side cache as requested in previous conversations
-                // If it's a new doc, add it. If it's an update, replace it.
-                const index = all.findIndex(d => d.id === savedDoc.id);
-                if (index > -1) {
-                    all[index] = savedDoc;
-                } else {
-                    all.push(savedDoc);
-                }
-                localStorage.setItem(this.cacheKey, JSON.stringify(all));
-            })
+    /**
+     * Get documentation for a specific project from the backend
+     */
+    getDocsForProject(projectId: string): Observable<DocumentationEntry[]> {
+        return this.http.get<DocumentationEntry[]>(this.apiUrl).pipe(
+            // Filter on client side, or you could add a query param to the API
         );
     }
+
+    /**
+     * Get documentation for a specific project and developer
+     */
+    getDoc(projectId: string, developerId: string): Observable<DocumentationEntry> {
+        return this.http.get<DocumentationEntry>(`${this.apiUrl}/${projectId}/${developerId}`);
+    }
+
+    /**
+     * Save or update documentation entry
+     * Data is persisted to Supabase cloud database
+     */
+    saveDoc(payload: any): Observable<DocumentationEntry> {
+        return this.http.post<DocumentationEntry>(this.apiUrl, payload);
+    }
 }
+

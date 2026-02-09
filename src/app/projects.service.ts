@@ -11,10 +11,8 @@ import { environment } from '../environments/environment';
 export class ProjectsService {
   private apiUrl = `${environment.apiUrl}/projects`;
 
-  // Persistence bridge between serverless instances
-  private projSubject = new BehaviorSubject<Project[]>(
-    JSON.parse(localStorage.getItem('docs_cache_projs') || '[]')
-  );
+  // Singleton state: Holds data in class memory (survives navigation)
+  private projSubject = new BehaviorSubject<Project[]>([]);
   projects$ = this.projSubject.asObservable();
 
   constructor(private http: HttpClient) { }
@@ -22,18 +20,9 @@ export class ProjectsService {
   getProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(this.apiUrl).pipe(
       tap(serverData => {
-        if (serverData && serverData.length > 0) {
-          const current = this.projSubject.value;
-          // Merge unique items from server into local memory
-          const combined = [...current];
-          serverData.forEach(item => {
-            if (!combined.some(c => c.id === item.id)) {
-              combined.push(item);
-            }
-          });
-          const sorted = combined.sort((a, b) => a.name.localeCompare(b.name));
+        if (serverData) {
+          const sorted = serverData.sort((a, b) => a.name.localeCompare(b.name));
           this.projSubject.next(sorted);
-          localStorage.setItem('docs_cache_projs', JSON.stringify(sorted));
         }
       })
     );
@@ -46,7 +35,6 @@ export class ProjectsService {
         if (!current.some(c => c.id === newProj.id)) {
           const updated = [...current, newProj].sort((a, b) => a.name.localeCompare(b.name));
           this.projSubject.next(updated);
-          localStorage.setItem('docs_cache_projs', JSON.stringify(updated));
         }
       })
     );

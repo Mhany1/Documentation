@@ -46,3 +46,8 @@ Thumbs.db
 # Webpack / Babel cache (safety)
 babel-webpack/
 angular-webpack/
+
+# Environment variables (contains sensitive data)
+.env
+.env.local
+.env*.local

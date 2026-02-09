@@ -2,9 +2,10 @@
     "name": "documentation-api",
     "version": "1.0.0",
     "engines": {
-        "node": "22.x"
+        "node": "24.x"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.39.0",
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
         "express": "^4.18.2",

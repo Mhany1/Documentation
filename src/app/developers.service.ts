@@ -12,10 +12,7 @@ export class DevelopersService {
   private apiUrl = `${environment.apiUrl}/developers`;
 
   // Singleton state: Holds data in class memory (survives navigation)
-  // localStorage: Holds data in browser (survives refresh)
-  private devSubject = new BehaviorSubject<Developer[]>(
-    JSON.parse(localStorage.getItem('docs_cache_devs') || '[]')
-  );
+  private devSubject = new BehaviorSubject<Developer[]>([]);
   developers$ = this.devSubject.asObservable();
 
   constructor(private http: HttpClient) { }
@@ -23,18 +20,9 @@ export class DevelopersService {
   getDevelopers(): Observable<Developer[]> {
     return this.http.get<Developer[]>(this.apiUrl).pipe(
       tap(serverData => {
-        if (serverData && serverData.length > 0) {
-          const current = this.devSubject.value;
-          // Merge: Add items from server that we don't have locally yet
-          const combined = [...current];
-          serverData.forEach(item => {
-            if (!combined.some(c => c.id === item.id)) {
-              combined.push(item);
-            }
-          });
-          const sorted = combined.sort((a, b) => a.name.localeCompare(b.name));
+        if (serverData) {
+          const sorted = serverData.sort((a, b) => a.name.localeCompare(b.name));
           this.devSubject.next(sorted);
-          localStorage.setItem('docs_cache_devs', JSON.stringify(sorted));
         }
       })
     );
@@ -47,7 +35,6 @@ export class DevelopersService {
         if (!current.some(c => c.id === newDev.id)) {
           const updated = [...current, newDev].sort((a, b) => a.name.localeCompare(b.name));
           this.devSubject.next(updated);
-          localStorage.setItem('docs_cache_devs', JSON.stringify(updated));
         }
       })
     );
